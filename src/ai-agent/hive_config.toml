@@ -1,0 +1,8 @@
+[model]
+model = "gpt-4o-mini"
+
+[environment]
+type = "dev"
+
+[timeout]
+llm = 300
