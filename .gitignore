@@ -2,3 +2,4 @@
 src/ai-agent/.env
 src/ai-agent/.virtual_env
 src/ai-agent/hive-agent-data
+src/ai-agent/__pycache__/
