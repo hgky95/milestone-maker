@@ -1,5 +1,7 @@
 .idea
 src/ai-agent/.env
+src/ai-agent/.venv
 src/ai-agent/.virtual_env
+src/ai-agent/.cache
 src/ai-agent/hive-agent-data
 src/ai-agent/__pycache__/
