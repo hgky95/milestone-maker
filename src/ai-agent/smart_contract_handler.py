@@ -32,11 +32,15 @@ def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, mi
 
     try:
         contract = web3.eth.contract(address=milestone_maker_address, abi=milestone_maker_abi)
+        print("Get Contract: ", contract)
         account = web3.eth.account.from_key(private_key)
+        print("Get account: ", account)
         nonce = web3.eth.get_transaction_count(account.address)
 
+        # Convert user_address string to Ethereum address. Otherwise, facing with function no match argument types
+        ethereum_address = web3.to_checksum_address(user_address)
         tx = contract.functions.createLearningPath(
-            user_address,
+            ethereum_address,
             ipfs_hash,
             milestone_count
         ).build_transaction({
@@ -48,17 +52,9 @@ def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, mi
 
         signed_tx = web3.eth.account.sign_transaction(tx, private_key)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-
-        if receipt.status == 1:
-            learning_path_id = receipt.logs[0].topics[1]  # Assuming the learning path ID is emitted in the event
-            print("learning_path_id: ", learning_path_id)
-            print("web3.to_hex(learning_path_id): ", web3.to_hex(learning_path_id))
-            return web3.to_hex(learning_path_id)
-        else:
-            logging.error("Transaction failed")
-            return None
-
+        # receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        logging.info(f"Transaction Hash: {tx_hash.hex()}")
+        return tx_hash.hex()
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None
@@ -69,15 +65,14 @@ def store_learning_path(user_address, ipfs_hash, milestone_count):
     print("ipfs_hash: ", ipfs_hash)
     print("milestones: ", milestone_count)
     # Store on smart contract
-    learning_path_id = create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
+    tx_hash = create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
+    print("Final tx hash: ", tx_hash)
 
     # TODO: return ipfs
-    # return learning_path_id
-    return "learning_path_id"
+    return tx_hash
 
 if __name__ == "__main__":
-    data = {"key": "value"}
-    user_address="0x123"
+    user_address="0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
     ipfs_hash="ipfs_hash"
     milestone_count=5
     store_learning_path(user_address, ipfs_hash, milestone_count)

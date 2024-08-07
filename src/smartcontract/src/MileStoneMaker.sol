@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MileStoneMaker is ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-    Counters.Counter private _learningPathIds;
+    uint256 private _tokenIds;
+    uint256 private _learningPathIds;
 
     struct LearningPath {
         uint256 id;
@@ -60,8 +58,8 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     ) public onlyAIAgent returns (uint256) {
         require(_milestoneCount > 0, "Milestone count must be greater than 0");
 
-        _learningPathIds.increment();
-        uint256 newLearningPathId = _learningPathIds.current();
+        _learningPathIds += 1;
+        uint256 newLearningPathId = _learningPathIds;
 
         bool[] memory completedMilestones = new bool[](_milestoneCount);
         userLearningPaths[_user][newLearningPathId] = LearningPath(
@@ -131,8 +129,8 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         uint256 _learningPathId,
         string memory _tokenURI
     ) internal {
-        _tokenIds.increment();
-        uint256 newItemId = _tokenIds.current();
+        _tokenIds += 1;
+        uint256 newItemId = _tokenIds;
         _safeMint(_user, newItemId);
         _setTokenURI(newItemId, _tokenURI);
 
