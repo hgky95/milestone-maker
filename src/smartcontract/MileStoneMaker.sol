@@ -18,20 +18,31 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         bool completed;
     }
 
-    mapping(address => mapping(uint256 => LearningPath)) public userLearningPaths;
+    mapping(address => mapping(uint256 => LearningPath))
+        public userLearningPaths;
     mapping(address => uint256[]) public userLearningPathIds;
-    mapping(address => mapping(uint256 => string[])) public learningPathMilestones;
+    mapping(address => mapping(uint256 => string[]))
+        public learningPathMilestones;
 
     address public aiAgent;
 
-    event LearningPathCreated(address user, uint256 learningPathId, string ipfsHash);
-    event MilestoneCompleted(address user, uint256 learningPathId, uint256 milestoneIndex);
-    event AchievementMinted(address user, uint256 learningPathId, uint256 tokenId);
+    event LearningPathCreated(
+        address user,
+        uint256 learningPathId,
+        string ipfsHash
+    );
+    event MilestoneCompleted(
+        address user,
+        uint256 learningPathId,
+        uint256 milestoneIndex
+    );
+    event AchievementMinted(
+        address user,
+        uint256 learningPathId,
+        uint256 tokenId
+    );
 
-    constructor()
-        ERC721("MileStoneMaker", "MM")
-        Ownable(msg.sender)
-    {}
+    constructor() ERC721("MileStoneMaker", "MM") Ownable(msg.sender) {}
 
     modifier onlyAIAgent() {
         require(msg.sender == aiAgent, "Caller is not the AI Agent");
@@ -42,38 +53,65 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         aiAgent = _newAIAgent;
     }
 
-    function createLearningPath(address _user, string memory _ipfsHash, uint256 _milestoneCount) public onlyAIAgent returns (uint256) {
+    function createLearningPath(
+        address _user,
+        string memory _ipfsHash,
+        uint256 _milestoneCount
+    ) public onlyAIAgent returns (uint256) {
         require(_milestoneCount > 0, "Milestone count must be greater than 0");
-        
+
         _learningPathIds.increment();
         uint256 newLearningPathId = _learningPathIds.current();
-        
+
         bool[] memory completedMilestones = new bool[](_milestoneCount);
-        userLearningPaths[_user][newLearningPathId] = LearningPath(newLearningPathId, _ipfsHash, completedMilestones, false);
+        userLearningPaths[_user][newLearningPathId] = LearningPath(
+            newLearningPathId,
+            _ipfsHash,
+            completedMilestones,
+            false
+        );
         userLearningPathIds[_user].push(newLearningPathId);
-        
+
         emit LearningPathCreated(_user, newLearningPathId, _ipfsHash);
-        
+
         return newLearningPathId;
     }
 
-    function storeMilestones(address _user, uint256 _learningPathId, string[] memory _milestones) public onlyAIAgent {
-        require(userLearningPaths[_user][_learningPathId].id != 0, "Learning path does not exist");
-        require(_milestones.length == userLearningPaths[_user][_learningPathId].milestones.length, "Milestone count mismatch");
-        
+    function storeMilestones(
+        address _user,
+        uint256 _learningPathId,
+        string[] memory _milestones
+    ) public onlyAIAgent {
+        require(
+            userLearningPaths[_user][_learningPathId].id != 0,
+            "Learning path does not exist"
+        );
+        require(
+            _milestones.length ==
+                userLearningPaths[_user][_learningPathId].milestones.length,
+            "Milestone count mismatch"
+        );
+
         learningPathMilestones[_user][_learningPathId] = _milestones;
     }
 
-    function completeMilestone(address _user, uint256 _learningPathId, uint256 _milestoneIndex) public onlyAIAgent {
+    function completeMilestone(
+        address _user,
+        uint256 _learningPathId,
+        uint256 _milestoneIndex
+    ) public onlyAIAgent {
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         require(path.id != 0, "Learning path does not exist");
         require(!path.completed, "Learning path already completed");
-        require(_milestoneIndex < path.milestones.length, "Invalid milestone index");
-        
+        require(
+            _milestoneIndex < path.milestones.length,
+            "Invalid milestone index"
+        );
+
         path.milestones[_milestoneIndex] = true;
-        
+
         emit MilestoneCompleted(_user, _learningPathId, _milestoneIndex);
-        
+
         bool allCompleted = true;
         for (uint256 i = 0; i < path.milestones.length; i++) {
             if (!path.milestones[i]) {
@@ -81,36 +119,51 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
                 break;
             }
         }
-        
+
         if (allCompleted) {
             path.completed = true;
             mintAchievement(_user, _learningPathId, path.ipfsHash);
         }
     }
 
-    function mintAchievement(address _user, uint256 _learningPathId, string memory _tokenURI) internal {
+    function mintAchievement(
+        address _user,
+        uint256 _learningPathId,
+        string memory _tokenURI
+    ) internal {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_user, newItemId);
         _setTokenURI(newItemId, _tokenURI);
-        
+
         emit AchievementMinted(_user, _learningPathId, newItemId);
     }
 
-    function isEligibleForNFT(address _user, uint256 _learningPathId) public view returns (bool) {
+    function isEligibleForNFT(
+        address _user,
+        uint256 _learningPathId
+    ) public view returns (bool) {
         return userLearningPaths[_user][_learningPathId].completed;
     }
 
-    function getLearningPath(address _user, uint256 _learningPathId) public view returns (string memory, bool[] memory, bool) {
+    function getLearningPath(
+        address _user,
+        uint256 _learningPathId
+    ) public view returns (string memory, bool[] memory, bool) {
         LearningPath memory path = userLearningPaths[_user][_learningPathId];
         return (path.ipfsHash, path.milestones, path.completed);
     }
 
-    function getUserLearningPathIds(address _user) public view returns (uint256[] memory) {
+    function getUserLearningPathIds(
+        address _user
+    ) public view returns (uint256[] memory) {
         return userLearningPathIds[_user];
     }
 
-    function getMilestones(address _user, uint256 _learningPathId) public view returns (string[] memory) {
+    function getMilestones(
+        address _user,
+        uint256 _learningPathId
+    ) public view returns (string[] memory) {
         return learningPathMilestones[_user][_learningPathId];
     }
 }
