@@ -9,15 +9,15 @@ load_dotenv()
 PINATA_HOST = "https://api.pinata.cloud/pinning/pinJsonToIPFS"
 
 
-def pin_json_to_ipfs(json_str):
+def pin_json_to_ipfs(json_obj):
     url = PINATA_HOST
     headers = {
         'pinata_api_key': os.getenv('PINATA_API_KEY'),
         'pinata_secret_api_key': os.getenv('PINATA_SECRET_API_KEY')
     }
 
-    print("Upload json to IPFS: ", json_str)
-    json_obj = json.loads(json_str)
+    print("Upload json to IPFS: ", json_obj)
+    # json_obj = json.loads(json_str)
     response = requests.post(url, headers=headers, json=json_obj)
     res_json = response.json()
     print('res_json: ', res_json)

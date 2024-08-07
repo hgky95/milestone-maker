@@ -6,6 +6,7 @@ from flask_restful import Resource
 
 from AIConfiguration import AIConfiguration
 from Chat import Chat
+from ipfs_handler import pin_json_to_ipfs
 import time
 import json
 
@@ -30,6 +31,28 @@ class AIIntegration(Resource):
 
         # Create chat queues
         chat_queues = []
+
+        learning_path = self.generate_learning_path(learning_generator_agent, requirement)
+        chat_queues.append(learning_path)
+
+        self.format_learning_path(chat_queues, formatter_agent, learning_path)
+        chat_results = user_proxy.initiate_chats(chat_queues)
+        learning_path_json = chat_results[1].summary
+        learning_path_json_formatted = learning_path_json.replace('```json', '').replace('```', '').replace('\n', '')
+        autogen.runtime_logging.stop()
+
+
+        # Pin learning path to IPFS
+        json_obj = json.loads(learning_path_json_formatted)
+        cid = pin_json_to_ipfs(json_obj)
+
+        end_time = time.time()
+        consumed_time = end_time - start_time
+        print(f"Time consumed: {consumed_time} seconds")
+
+        return {"cid": cid}
+
+    def generate_learning_path(self, learning_generator_agent, requirement):
         generator_instruction = f"""
                                    You are a Personalized Learning Generator Assistant! Your role is to provide learning path for users based on their requirements.
                                     You need to create a comprehensive learning path to achieve a specific goal. The learning path should include a step-by-step guide, 
@@ -40,21 +63,8 @@ class AIIntegration(Resource):
                                         Part 2. The quiz contains five multiple-choice questions and the list of answers in the end.
                                     Here is the requirement from user: {requirement}
                                     """
-
         learning_path = Chat(learning_generator_agent, generator_instruction, False).toDict()
-        chat_queues.append(learning_path)
-        self.add_learning_path_to_queues(chat_queues, formatter_agent, learning_path)
-        chat_results = user_proxy.initiate_chats(chat_queues)
-        learning_path_json = chat_results[1].summary
-        learning_path_json_formatted = learning_path_json.replace('```json', '').replace('```', '')
-        print(learning_path_json_formatted)
-
-        autogen.runtime_logging.stop()
-
-        end_time = time.time()
-        consumed_time = end_time - start_time
-        print(f"Time consumed: {consumed_time} seconds")
-        return chat_results
+        return learning_path
 
     def create_user_proxy_agent(self):
         user_proxy = autogen.UserProxyAgent(
@@ -79,11 +89,17 @@ class AIIntegration(Resource):
         )
         return formatter
 
+    # def create_developer_agent(self):
+    #     developer = AssistantAgent(
+    #         name="developer",
+    #         llm_config=AIConfiguration.developer_llm_config,
+    #         # system_message="" TODO define
+    #     )
+    #     return developer
 
 
 
-
-    def add_learning_path_to_queues(self, chat_queues, formatter, learning_path_and_quizzes):
+    def format_learning_path(self, chat_queues, formatter, learning_path_and_quizzes):
         example_learning_path = [
             {
                 "Task_1": {
@@ -138,7 +154,8 @@ class AIIntegration(Resource):
 
         json_data = {
             "learning_path": example_learning_path,
-            "quizzes": example_quizzes
+            "quizzes": example_quizzes,
+            "milestones": 2
         }
 
         json_str = json.dumps(json_data)
@@ -148,6 +165,9 @@ class AIIntegration(Resource):
         Your main responsibility is to read through the learning path and quizzes then format it into json format. 
         Below is one example of expected json:
         {json_str}
-        Important: you need to return the json as the output.
+        Important: 
+        - You need to return the json as the output.
+        - The milestones is the number of tasks in the learning path that the users need to learn.
+        - You do not need to include the 'Here is the formatted JSON output based on...' or 'This JSON includes the learning path with tasks...'.
         """
         chat_queues.append(Chat(formatter, message, False).toDict())
