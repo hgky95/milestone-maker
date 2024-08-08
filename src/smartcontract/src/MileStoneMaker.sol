@@ -19,8 +19,8 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     mapping(address => mapping(uint256 => LearningPath))
         public userLearningPaths;
     mapping(address => uint256[]) public userLearningPathIds;
-    mapping(address => mapping(uint256 => string[]))
-        public learningPathMilestones;
+    // mapping(address => mapping(uint256 => bool[]))
+    //     public learningPathMilestones;
 
     address public aiAgent;
 
@@ -31,8 +31,8 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     );
     event MilestoneCompleted(
         address user,
-        uint256 learningPathId,
-        uint256 milestoneIndex
+        uint256 learningPathId
+        // uint256 milestoneIndex
     );
     event AchievementMinted(
         address user,
@@ -78,7 +78,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     function storeMilestones(
         address _user,
         uint256 _learningPathId,
-        string[] memory _milestones
+        bool[] memory _milestones
     ) public onlyAIAgent {
         require(
             userLearningPaths[_user][_learningPathId].id != 0,
@@ -90,25 +90,28 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
             "Milestone count mismatch"
         );
 
-        learningPathMilestones[_user][_learningPathId] = _milestones;
+        // learningPathMilestones[_user][_learningPathId] = _milestones;
+        LearningPath storage path = userLearningPaths[_user][_learningPathId];
+        path.milestones = _milestones;
     }
 
     function completeMilestone(
         address _user,
-        uint256 _learningPathId,
-        uint256 _milestoneIndex
+        uint256 _learningPathId
+        // uint256 _milestoneIndex
     ) public onlyAIAgent {
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         require(path.id != 0, "Learning path does not exist");
         require(!path.completed, "Learning path already completed");
-        require(
-            _milestoneIndex < path.milestones.length,
-            "Invalid milestone index"
-        );
+        // require(
+        //     _milestoneIndex < path.milestones.length,
+        //     "Invalid milestone index"
+        // );
 
-        path.milestones[_milestoneIndex] = true;
+        // path.milestones[_milestoneIndex] = true;
 
-        emit MilestoneCompleted(_user, _learningPathId, _milestoneIndex);
+        // emit MilestoneCompleted(_user, _learningPathId, _milestoneIndex);
+        emit MilestoneCompleted(_user, _learningPathId);
 
         bool allCompleted = true;
         for (uint256 i = 0; i < path.milestones.length; i++) {
@@ -161,7 +164,9 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     function getMilestones(
         address _user,
         uint256 _learningPathId
-    ) public view returns (string[] memory) {
-        return learningPathMilestones[_user][_learningPathId];
+    ) public view returns (bool[] memory) {
+        LearningPath storage path = userLearningPaths[_user][_learningPathId];
+        return path.milestones;
+        // return learningPathMilestones[_user][_learningPathId];
     }
 }

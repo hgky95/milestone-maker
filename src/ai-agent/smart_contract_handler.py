@@ -60,19 +60,19 @@ def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, mi
         return None
 
 
-def store_learning_path(user_address, ipfs_hash, milestone_count):
-    print("user_address: ", user_address)
-    print("ipfs_hash: ", ipfs_hash)
-    print("milestones: ", milestone_count)
-    # Store on smart contract
-    tx_hash = create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
-    print("Final tx hash: ", tx_hash)
-
-    # TODO: return ipfs
-    return tx_hash
+# def store_learning_path(user_address, ipfs_hash, milestone_count):
+#     print("user_address: ", user_address)
+#     print("ipfs_hash: ", ipfs_hash)
+#     print("milestones: ", milestone_count)
+#     # Store on smart contract
+#     tx_hash = create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
+#     print("Final tx hash: ", tx_hash)
+#
+#     # TODO: return ipfs
+#     return tx_hash
 
 if __name__ == "__main__":
     user_address="0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
     ipfs_hash="ipfs_hash"
     milestone_count=5
-    store_learning_path(user_address, ipfs_hash, milestone_count)
+    create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
