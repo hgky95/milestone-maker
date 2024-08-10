@@ -14,6 +14,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         string ipfsHash;
         bool[] milestones;
         bool completed;
+        bool achievementMinted;
     }
 
     mapping(address => mapping(uint256 => LearningPath))
@@ -22,9 +23,17 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
 
     address public aiAgent;
 
-    event LearningPathCreated(address user, uint256 learningPathId, string ipfsHash);
+    event LearningPathCreated(
+        address user,
+        uint256 learningPathId,
+        string ipfsHash
+    );
     event MilestoneCompleted(address user, uint256 learningPathId);
-    event AchievementMinted(address user, uint256 learningPathId, uint256 tokenId);
+    event AchievementMinted(
+        address user,
+        uint256 learningPathId,
+        uint256 tokenId
+    );
 
     constructor() ERC721("MileStoneMaker", "MM") Ownable(msg.sender) {}
 
@@ -37,7 +46,11 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         aiAgent = _newAIAgent;
     }
 
-    function createLearningPath(address _user, string memory _ipfsHash, uint256 _milestoneCount) public onlyAIAgent returns (uint256) {
+    function createLearningPath(
+        address _user,
+        string memory _ipfsHash,
+        uint256 _milestoneCount
+    ) public onlyAIAgent returns (uint256) {
         require(_milestoneCount > 0, "Milestone count must be greater than 0");
 
         _learningPathIds++;
@@ -48,6 +61,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
             newLearningPathId,
             _ipfsHash,
             completedMilestones,
+            false,
             false
         );
         userLearningPathIds[_user].push(newLearningPathId);
@@ -57,19 +71,28 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         return newLearningPathId;
     }
 
-    function storeMilestones(address _user, uint256 _learningPathId, bool[] memory _milestones) public onlyAIAgent {
-        require(userLearningPaths[_user][_learningPathId].id != 0,
+    function updateMilestones(
+        address _user,
+        uint256 _learningPathId,
+        bool[] memory _milestones
+    ) public onlyAIAgent {
+        require(
+            userLearningPaths[_user][_learningPathId].id != 0,
             "Learning path does not exist"
         );
         require(
-            _milestones.length == userLearningPaths[_user][_learningPathId].milestones.length,
+            _milestones.length ==
+                userLearningPaths[_user][_learningPathId].milestones.length,
             "Milestone count mismatch"
         );
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         path.milestones = _milestones;
     }
 
-    function completeMilestone(address _user, uint256 _learningPathId) public onlyAIAgent {
+    function completeMilestone(
+        address _user,
+        uint256 _learningPathId
+    ) public onlyAIAgent {
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         require(path.id != 0, "Learning path does not exist");
         require(!path.completed, "Learning path already completed");
@@ -86,7 +109,6 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
 
         if (allCompleted) {
             path.completed = true;
-            mintAchievement(_user, _learningPathId, path.ipfsHash);
         }
     }
 
@@ -94,11 +116,20 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         address _user,
         uint256 _learningPathId,
         string memory _tokenURI
-    ) internal {
+    ) public {
+        require(msg.sender == _user, "Only owner can mint the NFT");
+        LearningPath storage path = userLearningPaths[_user][_learningPathId];
+        require(path.completed, "Learning path is not completed");
+        require(
+            !path.achievementMinted,
+            "Achievement already minted for this learning path"
+        );
+
         _tokenIds++;
         uint256 newItemId = _tokenIds;
         _safeMint(_user, newItemId);
         _setTokenURI(newItemId, _tokenURI);
+        path.achievementMinted = true;
 
         emit AchievementMinted(_user, _learningPathId, newItemId);
     }
@@ -113,9 +144,14 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     function getLearningPath(
         address _user,
         uint256 _learningPathId
-    ) public view returns (string memory, bool[] memory, bool) {
+    ) public view returns (string memory, bool[] memory, bool, bool) {
         LearningPath memory path = userLearningPaths[_user][_learningPathId];
-        return (path.ipfsHash, path.milestones, path.completed);
+        return (
+            path.ipfsHash,
+            path.milestones,
+            path.completed,
+            path.achievementMinted
+        );
     }
 
     function getUserLearningPathIds(
