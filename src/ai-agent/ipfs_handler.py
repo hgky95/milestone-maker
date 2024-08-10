@@ -1,6 +1,7 @@
 import os
 import requests
 from dotenv import load_dotenv
+import json
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +17,7 @@ def pin_json_to_ipfs(json_obj):
     }
 
     print("Upload json to IPFS: ", json_obj)
+    # json_obj = json.loads(json_str)
     response = requests.post(url, headers=headers, json=json_obj)
     res_json = response.json()
     print('res_json: ', res_json)
