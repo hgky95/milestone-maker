@@ -1,13 +1,15 @@
 from web3 import Web3
-from typing import Union
 import logging
 from dotenv import load_dotenv
 import os
 import json
+from web3.exceptions import ContractLogicError, Web3Exception
+from log_utils import log_info, log_error
+
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -25,16 +27,14 @@ with open('milestone_maker_abi.json', 'r') as abi_file:
     milestone_maker_abi = json.load(abi_file)
 
 
-def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, milestone_count: int) -> Union[str, None]:
+def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, milestone_count: int):
     if not web3.is_connected():
-        logging.error("Unable to connect to Ethereum")
+        log_error("Unable to connect to Ethereum")
         return None
 
     try:
         contract = web3.eth.contract(address=milestone_maker_address, abi=milestone_maker_abi)
-        print("Get Contract: ", contract)
         account = web3.eth.account.from_key(private_key)
-        print("Get account: ", account)
         nonce = web3.eth.get_transaction_count(account.address)
 
         # Convert user_address string to Ethereum address. Otherwise, facing with function no match argument types
@@ -52,11 +52,23 @@ def create_learning_path_on_smart_contract(user_address: str, ipfs_hash: str, mi
 
         signed_tx = web3.eth.account.sign_transaction(tx, private_key)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        # receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-        logging.info(f"Transaction Hash: {tx_hash.hex()}")
-        return tx_hash.hex()
+        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+
+        tx_hash_hex = tx_hash.hex()
+        log_info(f"Transaction Hash: {tx_hash_hex}")
+
+        if receipt['status'] == 1:
+            log_info("Transaction was successful")
+            return tx_hash_hex
+        else:
+            log_error("Transaction failed!!!")
+            try:
+                contract.functions.createLearningPath(ethereum_address, ipfs_hash, milestone_count).call({'from': account.address})
+            except ContractLogicError as e:
+                logging.error(f"Revert reason: {e.message}")
+            return tx_hash_hex
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        log_error(f"An error occurred: {e}")
         return None
 
 

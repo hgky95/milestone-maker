@@ -46,7 +46,6 @@ def store_learning_path(learning_path, user_address):
 
     log_info("Pinning data to ipfs")
     ipfs_hash = pin_json_to_ipfs(learning_path_obj)
-    log_info(f"IPFS hash: {ipfs_hash}")
 
     tx_hash = create_learning_path_on_smart_contract(user_address, ipfs_hash, milestone_count)
 
