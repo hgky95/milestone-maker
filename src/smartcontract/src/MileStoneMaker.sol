@@ -19,26 +19,12 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     mapping(address => mapping(uint256 => LearningPath))
         public userLearningPaths;
     mapping(address => uint256[]) public userLearningPathIds;
-    // mapping(address => mapping(uint256 => bool[]))
-    //     public learningPathMilestones;
 
     address public aiAgent;
 
-    event LearningPathCreated(
-        address user,
-        uint256 learningPathId,
-        string ipfsHash
-    );
-    event MilestoneCompleted(
-        address user,
-        uint256 learningPathId
-        // uint256 milestoneIndex
-    );
-    event AchievementMinted(
-        address user,
-        uint256 learningPathId,
-        uint256 tokenId
-    );
+    event LearningPathCreated(address user, uint256 learningPathId, string ipfsHash);
+    event MilestoneCompleted(address user, uint256 learningPathId);
+    event AchievementMinted(address user, uint256 learningPathId, uint256 tokenId);
 
     constructor() ERC721("MileStoneMaker", "MM") Ownable(msg.sender) {}
 
@@ -51,14 +37,10 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         aiAgent = _newAIAgent;
     }
 
-    function createLearningPath(
-        address _user,
-        string memory _ipfsHash,
-        uint256 _milestoneCount
-    ) public onlyAIAgent returns (uint256) {
+    function createLearningPath(address _user, string memory _ipfsHash, uint256 _milestoneCount) public onlyAIAgent returns (uint256) {
         require(_milestoneCount > 0, "Milestone count must be greater than 0");
 
-        _learningPathIds += 1;
+        _learningPathIds++;
         uint256 newLearningPathId = _learningPathIds;
 
         bool[] memory completedMilestones = new bool[](_milestoneCount);
@@ -75,42 +57,23 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         return newLearningPathId;
     }
 
-    function storeMilestones(
-        address _user,
-        uint256 _learningPathId,
-        bool[] memory _milestones
-    ) public onlyAIAgent {
-        require(
-            userLearningPaths[_user][_learningPathId].id != 0,
+    function storeMilestones(address _user, uint256 _learningPathId, bool[] memory _milestones) public onlyAIAgent {
+        require(userLearningPaths[_user][_learningPathId].id != 0,
             "Learning path does not exist"
         );
         require(
-            _milestones.length ==
-                userLearningPaths[_user][_learningPathId].milestones.length,
+            _milestones.length == userLearningPaths[_user][_learningPathId].milestones.length,
             "Milestone count mismatch"
         );
-
-        // learningPathMilestones[_user][_learningPathId] = _milestones;
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         path.milestones = _milestones;
     }
 
-    function completeMilestone(
-        address _user,
-        uint256 _learningPathId
-        // uint256 _milestoneIndex
-    ) public onlyAIAgent {
+    function completeMilestone(address _user, uint256 _learningPathId) public onlyAIAgent {
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         require(path.id != 0, "Learning path does not exist");
         require(!path.completed, "Learning path already completed");
-        // require(
-        //     _milestoneIndex < path.milestones.length,
-        //     "Invalid milestone index"
-        // );
 
-        // path.milestones[_milestoneIndex] = true;
-
-        // emit MilestoneCompleted(_user, _learningPathId, _milestoneIndex);
         emit MilestoneCompleted(_user, _learningPathId);
 
         bool allCompleted = true;
@@ -132,7 +95,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         uint256 _learningPathId,
         string memory _tokenURI
     ) internal {
-        _tokenIds += 1;
+        _tokenIds++;
         uint256 newItemId = _tokenIds;
         _safeMint(_user, newItemId);
         _setTokenURI(newItemId, _tokenURI);
@@ -167,6 +130,5 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     ) public view returns (bool[] memory) {
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         return path.milestones;
-        // return learningPathMilestones[_user][_learningPathId];
     }
 }
