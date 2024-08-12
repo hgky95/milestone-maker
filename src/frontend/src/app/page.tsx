@@ -49,7 +49,13 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100">
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
-          <div className="text-2xl font-bold">▲</div>
+          <div className="text-2xl font-bold">
+            <img
+              src="/milestone_maker_logo-removebg.png"
+              alt="Milestone maker logo"
+              className="inline-block w-20 h-20 mr-4"
+            />
+          </div>
           <ConnectWallet setAccount={setAccount} web3={web3} />
         </div>
 
