@@ -6,3 +6,4 @@ src/ai-agent/.cache
 src/ai-agent/logs.db
 src/ai-agent/__pycache__/
 src/ai-agent/hive-agent-data
+src/frontend/.env
