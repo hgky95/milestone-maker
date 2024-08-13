@@ -51,7 +51,7 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <div className="text-2xl font-bold">
             <img
-              src="/milestone_maker_logo-removebg.png"
+              src="/milestone_maker_logo.png"
               alt="Milestone maker logo"
               className="inline-block w-20 h-20 mr-4"
             />
@@ -61,7 +61,10 @@ export default function Home() {
 
         <h1 className="text-4xl font-bold mb-8">Milestone Maker</h1>
 
-        <MilestoneMaker fetchLearningPath={fetchLearningPath} />
+        <MilestoneMaker
+          account={account}
+          fetchLearningPath={fetchLearningPath}
+        />
 
         {learningPath.map((milestone, index) => (
           <LearningPath
