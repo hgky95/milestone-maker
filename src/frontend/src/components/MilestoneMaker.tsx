@@ -70,8 +70,12 @@ export default function MilestoneMaker({
         />
         <button
           onClick={handleGenerate}
-          disabled={isGenerating}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-r"
+          disabled={account == null}
+          className={`${
+            account
+              ? "bg-blue-500 hover:bg-blue-600"
+              : "bg-gray-400 cursor-not-allowed"
+          } text-white font-bold py-2 px-4 rounded-r`}
         >
           {isGenerating ? "Generating..." : "Generate"}
         </button>
