@@ -15,25 +15,55 @@ export default function ConnectWallet({
 
   useEffect(() => {
     const checkConnection = async () => {
-      if (web3) {
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length > 0) {
-          setConnectedAccount(accounts[0]);
-          setAccount(accounts[0]);
+      if (web3 && window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          if (accounts.length > 0) {
+            setConnectedAccount(accounts[0]);
+            setAccount(accounts[0]);
+          }
+          window.ethereum.on("accountsChanged", handleAccountsChanged);
+        } catch (error) {
+          console.error("Failed to connect:", error);
         }
       }
     };
 
     checkConnection();
+
+    // Cleanup listener on component unmount
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
+      }
+    };
   }, [web3, setAccount]);
+
+  const handleAccountsChanged = (accounts: string[]) => {
+    if (accounts.length === 0) {
+      // User disconnected their wallet
+      setConnectedAccount(null);
+      setAccount(null);
+    } else {
+      // User switched accounts
+      setConnectedAccount(accounts[0]);
+      setAccount(accounts[0]);
+    }
+  };
 
   const connectWallet = async () => {
     console.log("connectWallet...");
-
     setIsConnecting(true);
     try {
-      if (web3) {
-        const accounts = await web3.eth.requestAccounts();
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
         setConnectedAccount(accounts[0]);
         setAccount(accounts[0]);
       }
