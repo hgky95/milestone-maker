@@ -20,13 +20,12 @@ export default function Home() {
     const initializeWeb3 = async () => {
       if (typeof window.ethereum !== "undefined") {
         try {
-          // const web3Instance = new Web3(window.ethereum);
           const web3HttpProvider = new Web3.providers.HttpProvider(
             WEB3_HTTP_PROVIDER
           );
           const web3Instance = new Web3(web3HttpProvider);
-          // console.log(Web3);
           setWeb3(web3Instance);
+
           console.log("Contract address: ", CONTRACT_ADDRESS);
           const currentChainId = await web3Instance.eth.getChainId();
           console.log("Current chain id: ", currentChainId);
@@ -45,9 +44,14 @@ export default function Home() {
     initializeWeb3();
   }, []);
 
+  useEffect(() => {
+    if (account && contract) {
+      fetchLearningPath();
+    }
+  }, [account, contract]);
+
   const fetchLearningPath = async () => {
     if (contract && account) {
-      console.log("Fetching learning paths for account:", account);
       try {
         const learningPathIds = await contract.methods
           .getUserLearningPathIds(account)
@@ -57,30 +61,21 @@ export default function Home() {
           Number(id)
         );
 
-        console.log("Learning Path Ids: ", convertedLearningPathIds);
-
         const paths = await Promise.all(
-          convertedLearningPathIds.map(async (id: any) => {
-            console.log("Fetching learning path with id:", id);
-
-            // Get the return value of the contract method
+          convertedLearningPathIds.map(async (id: number) => {
             const learningPath = await contract.methods
               .getLearningPath(account, id)
               .call({ from: account });
 
-            // Log the return value to understand its structure
-            console.log("Learning Path Data: ", learningPath);
-
-            // Assuming the structure is an object with keys matching the variable names
-            const { ipfsHash, milestones, completed, achievementMinted } =
-              learningPath;
+            console.log("learningPath: ", learningPath);
 
             return {
               id,
-              ipfsHash,
-              milestones,
-              completed,
-              achievementMinted,
+              ipfsHash: learningPath[0],
+              milestones: learningPath[1],
+              completed: learningPath[2],
+              achievementMinted: learningPath[3],
+              status: learningPath[2] ? "Completed" : "In Progress",
             };
           })
         );
@@ -113,11 +108,17 @@ export default function Home() {
           fetchLearningPath={fetchLearningPath}
         />
 
-        {learningPaths.map((milestone, index) => (
+        {learningPaths.map((path) => (
           <LearningPath
-            key={index}
-            title={milestone.title}
-            status={milestone.completed ? "Completed" : "In Progress"}
+            // web3={web3}
+            // contract={contract}
+            id={path.id}
+            status={path.status}
+            ipfsHash={path.ipfsHash}
+            milestones={path.milestones}
+            completed={path.completed}
+            achievementMinted={path.achievementMinted}
+            account={account}
           />
         ))}
       </main>

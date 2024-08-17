@@ -46,7 +46,6 @@ export default function MilestoneMaker({
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
         setGeneratedPath(response.data);
       })
       .catch((error) => {
