@@ -4,7 +4,7 @@ from web3 import Web3
 from hive_agent import HiveAgent
 from dotenv import load_dotenv
 from ipfs_handler import pin_json_to_ipfs
-from smart_contract_handler import create_learning_path_on_smart_contract
+from smart_contract_handler import create_learning_path_on_smart_contract, update_milestone
 from log_utils import log_info, log_error
 
 
@@ -20,12 +20,29 @@ milestone_maker_address = os.getenv("MILESTONE_MAKER_ADDRESS")
 web3 = Web3(Web3.HTTPProvider(rpc_url))
 
 # Load MilestoneMaker ABI
-with open('milestone_maker_abi.json', 'r') as abi_file:
+with open('SmartContractABI.json', 'r') as abi_file:
     milestone_maker_abi = json.load(abi_file)
 
 
 def get_config_path(filename):
     return os.path.abspath(os.path.join(os.path.dirname(__file__), filename))
+
+def update_milestones(user_address, learning_path_id, milestones):
+    """
+    Update the milestones value based on user address and their learning path id
+
+    Parameter:
+    user_address (str): The address of the user who wants to update their learning path
+    learning_path_id (int): The learning path id
+    milestones list[bool]: The list of milestones values to update
+    :return: the transaction hash from smart contract
+    """
+    log_info("Updating milestone...")
+    log_info(f"User address: {user_address}")
+    log_info(f"Learning path id: {learning_path_id}")
+    log_info(f"Milestones: {milestones}")
+    tx_hash = update_milestone(user_address, learning_path_id, milestones)
+    return tx_hash
 
 
 def store_learning_path(learning_path, user_address):
@@ -38,6 +55,7 @@ def store_learning_path(learning_path, user_address):
 
         :return: the transaction hash from smart contract
     """
+    log_info("Storing learning...")
     log_info(f"User address: {user_address}")
     log_info("The learning path is: ")
     log_info(learning_path)
@@ -121,10 +139,11 @@ instruction = f"""
         the milestones is the number of tasks that user need to be completed: {json_data}
 
     2. Store the learning path to IPFS and smart contract.
+    3. Update the milestones based on user address, learning path id and milestones value.
     """
 path_learning_generator_agent = HiveAgent(
     name="path_learning_generator_agent",
-    functions=[store_learning_path],
+    functions=[store_learning_path, update_milestones],
     instruction=instruction,
     config_path=get_config_path("hive_config.toml"),
 )
