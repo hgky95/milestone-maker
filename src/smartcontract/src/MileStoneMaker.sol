@@ -87,17 +87,6 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         );
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
         path.milestones = _milestones;
-    }
-
-    function completeMilestone(
-        address _user,
-        uint256 _learningPathId
-    ) public onlyAIAgent {
-        LearningPath storage path = userLearningPaths[_user][_learningPathId];
-        require(path.id != 0, "Learning path does not exist");
-        require(!path.completed, "Learning path already completed");
-
-        emit MilestoneCompleted(_user, _learningPathId);
 
         bool allCompleted = true;
         for (uint256 i = 0; i < path.milestones.length; i++) {
