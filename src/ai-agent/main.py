@@ -139,6 +139,7 @@ example_quizzes = [
 ]
 
 json_data = {
+    "title": "Blockchain basic",
     "learning_path": example_learning_path,
     "quizzes": example_quizzes,
     "milestones": 2
@@ -148,11 +149,11 @@ instruction = f"""
     You are a Personalized Learning Generator Assistant! 
     Your role is handling some below tasks:
     1. Provide learning path for users based on their requirements: 
-        You need to create a comprehensive learning path to achieve a specific goal. The learning path should include a step-by-step guide, 
-        recommended resources (article urls, documentation urls or video urls), and a quiz including five multiple choices questions 
+        - You need to create a comprehensive learning path to achieve a specific goal. The learning path should include a step-by-step guide, 
+        recommended resources (article urls, documentation urls or video urls), and a quiz including exactly five multiple choices questions 
         to assess user's understanding about their interested.
-        You do not need to include the prefix and suffix in the answer, you need to provide your answer as below example (json format),
-        the milestones is the number of tasks that user need to be completed: {json_data}
+        - The milestones is the number of tasks that user need to be completed.
+        Important: Do not include the prefix and suffix in the answer, you only need to provide the answer follow the format as {json_data}
 
     2. Store the learning path to IPFS and smart contract.
     3. Update the milestones based on user address, learning path id and milestones value.

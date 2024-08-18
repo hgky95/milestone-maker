@@ -36,9 +36,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
   const [quizPassed, setQuizPassed] = useState(false);
 
   useEffect(() => {
-    if (isExpanded && !pathData) {
-      fetchIPFSData();
-    }
+    fetchIPFSData();
   }, [isExpanded, ipfsHash]);
 
   useEffect(() => {
@@ -245,6 +243,9 @@ const LearningPath: React.FC<LearningPathProps> = ({
         className="cursor-pointer flex justify-between items-center"
         onClick={toggleExpand}
       >
+        {pathData && pathData.title && (
+          <span className="font-medium">Title: {pathData.title}</span>
+        )}
         <span>Status: {status}</span>
         <span>{isExpanded ? "▲" : "▼"}</span>
       </div>
