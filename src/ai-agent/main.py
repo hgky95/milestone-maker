@@ -4,9 +4,8 @@ from web3 import Web3
 from hive_agent import HiveAgent
 from dotenv import load_dotenv
 from ipfs_handler import pin_json_to_ipfs
-from smart_contract_handler import create_learning_path_on_smart_contract, update_milestone
+from smart_contract_handler import create_learning_path_on_smart_contract, update_milestone, set_quiz_passed
 from log_utils import log_info, log_error
-
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +25,23 @@ with open('SmartContractABI.json', 'r') as abi_file:
 
 def get_config_path(filename):
     return os.path.abspath(os.path.join(os.path.dirname(__file__), filename))
+
+
+def set_quizzes_passed(user_address, learning_path_id):
+    """
+    Set the quiz passed based on user address and their learning path id
+
+    Parameter:
+    user_address (str): The address of the user who wants to update their learning path
+    learning_path_id (int): The learning path id
+    :return: the transaction hash from smart contract
+    """
+    log_info("Set quiz passed...")
+    log_info(f"User address: {user_address}")
+    log_info(f"Learning path id: {learning_path_id}")
+    tx_hash = set_quiz_passed(user_address, learning_path_id)
+    return tx_hash
+
 
 def update_milestones(user_address, learning_path_id, milestones):
     """
@@ -69,30 +85,31 @@ def store_learning_path(learning_path, user_address):
 
     return tx_hash
 
+
 example_learning_path = [
-            {
-                "Task_1": {
-                    "Title": "Introduction to Blockchain",
-                    "Objective": "Understand the basic concepts and terminology of blockchain technology.",
-                    "Activities": [
-                        "Read the article 'What is Blockchain Technology?' [Link](https://www.ibm.com/topics/what-is-blockchain)",
-                        "Watch the video 'Blockchain Explained' (YouTube) [Link](https://www.youtube.com/watch?v=SSo_EIwHSd4)",
-                        "Take notes on key terms: decentralization, distributed ledger, consensus mechanism."
-                    ]
-                }
-            },
-            {
-                "Task_2": {
-                    "Title": "How Blockchain Works",
-                    "Objective": "Learn how blockchain operates and the components involved.",
-                    "Activities": [
-                        "Read the article 'How Does Blockchain Work?' [Link](https://www.investopedia.com/terms/b/blockchain.asp)",
-                        "Watch the video 'How Blockchain Works' (YouTube) [Link](https://www.youtube.com/watch?v=HY2g2Y1g3fE)",
-                        "Create a simple diagram illustrating the blockchain process (blocks, transactions, miners)."
-                    ]
-                }
-            }
-        ]
+    {
+        "Task_1": {
+            "Title": "Introduction to Blockchain",
+            "Objective": "Understand the basic concepts and terminology of blockchain technology.",
+            "Activities": [
+                "Read the article 'What is Blockchain Technology?' [Link](https://www.ibm.com/topics/what-is-blockchain)",
+                "Watch the video 'Blockchain Explained' (YouTube) [Link](https://www.youtube.com/watch?v=SSo_EIwHSd4)",
+                "Take notes on key terms: decentralization, distributed ledger, consensus mechanism."
+            ]
+        }
+    },
+    {
+        "Task_2": {
+            "Title": "How Blockchain Works",
+            "Objective": "Learn how blockchain operates and the components involved.",
+            "Activities": [
+                "Read the article 'How Does Blockchain Work?' [Link](https://www.investopedia.com/terms/b/blockchain.asp)",
+                "Watch the video 'How Blockchain Works' (YouTube) [Link](https://www.youtube.com/watch?v=HY2g2Y1g3fE)",
+                "Create a simple diagram illustrating the blockchain process (blocks, transactions, miners)."
+            ]
+        }
+    }
+]
 
 example_quizzes = [
     {
@@ -127,7 +144,6 @@ json_data = {
     "milestones": 2
 }
 
-
 instruction = f""" 
     You are a Personalized Learning Generator Assistant! 
     Your role is handling some below tasks:
@@ -140,10 +156,11 @@ instruction = f"""
 
     2. Store the learning path to IPFS and smart contract.
     3. Update the milestones based on user address, learning path id and milestones value.
+    4. Set the quizzes passed based on user address, learning path id.
     """
 path_learning_generator_agent = HiveAgent(
     name="path_learning_generator_agent",
-    functions=[store_learning_path, update_milestones],
+    functions=[store_learning_path, update_milestones, set_quizzes_passed],
     instruction=instruction,
     config_path=get_config_path("hive_config.toml"),
 )

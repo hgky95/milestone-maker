@@ -122,12 +122,51 @@ const LearningPath: React.FC<LearningPathProps> = ({
       setCurrentQuizIndex(currentQuizIndex + 1);
     } else {
       // Quiz completed
-      setQuizCompleted(true);
-      const correctAnswers = newUserAnswers.filter(
-        (userAnswer, index) =>
-          userAnswer === quizzes[index][`Quiz_${index + 1}`].answer
-      ).length;
-      setQuizPassed(correctAnswers >= 4);
+      handleQuizPassed(newUserAnswers);
+    }
+  };
+
+  const handleQuizPassed = async (newUserAnswers: any) => {
+    setQuizCompleted(true);
+    const correctAnswers = newUserAnswers.filter(
+      (userAnswer: any, index: number) =>
+        userAnswer === quizzes[index][`Quiz_${index + 1}`].answer
+    ).length;
+    if (correctAnswers >= 4) {
+      try {
+        let data = JSON.stringify({
+          user_id: account,
+          session_id: generated_session_id,
+          chat_data: {
+            messages: [
+              {
+                role: "user",
+                content:
+                  "Set quiz passed for user address: " +
+                  account +
+                  " , learning path id is: " +
+                  id,
+              },
+            ],
+          },
+        });
+
+        const config = {
+          method: "post",
+          url: BACKEND_API,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: data,
+        };
+
+        const response = await axios.request(config);
+        console.log(JSON.stringify(response.data));
+
+        setQuizPassed(true);
+      } catch (error) {
+        console.log("Error set quiz passed:", error);
+      }
     }
   };
 

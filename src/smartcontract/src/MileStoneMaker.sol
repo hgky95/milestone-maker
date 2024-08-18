@@ -14,6 +14,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         string ipfsHash;
         bool[] milestones;
         bool completed;
+        bool quizPassed;
         bool achievementMinted;
     }
 
@@ -29,6 +30,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         string ipfsHash
     );
     event MilestoneCompleted(address user, uint256 learningPathId);
+    event QuizPassed(address user, uint256 learningPathId);
     event AchievementMinted(
         address user,
         uint256 learningPathId,
@@ -61,6 +63,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
             newLearningPathId,
             _ipfsHash,
             completedMilestones,
+            false,
             false,
             false
         );
@@ -101,6 +104,21 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
         }
     }
 
+    function setQuizPassed(
+        address _user,
+        uint256 _learningPathId
+    ) public onlyAIAgent {
+        require(
+            userLearningPaths[_user][_learningPathId].id != 0,
+            "Learning path does not exist"
+        );
+        LearningPath storage path = userLearningPaths[_user][_learningPathId];
+        require(path.completed, "Learning path is not completed");
+
+        path.quizPassed = true;
+        emit QuizPassed(_user, _learningPathId);
+    }
+
     function mintAchievement(
         address _user,
         uint256 _learningPathId,
@@ -108,7 +126,7 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     ) public {
         require(msg.sender == _user, "Only owner can mint the NFT");
         LearningPath storage path = userLearningPaths[_user][_learningPathId];
-        require(path.completed, "Learning path is not completed");
+        require(path.quizPassed, "Quiz is not completed");
         require(
             !path.achievementMinted,
             "Achievement already minted for this learning path"
@@ -133,12 +151,13 @@ contract MileStoneMaker is ERC721URIStorage, Ownable {
     function getLearningPath(
         address _user,
         uint256 _learningPathId
-    ) public view returns (string memory, bool[] memory, bool, bool) {
+    ) public view returns (string memory, bool[] memory, bool, bool, bool) {
         LearningPath memory path = userLearningPaths[_user][_learningPathId];
         return (
             path.ipfsHash,
             path.milestones,
             path.completed,
+            path.quizPassed,
             path.achievementMinted
         );
     }
