@@ -53,6 +53,7 @@ export default function Home() {
   const fetchLearningPath = async () => {
     if (contract && account) {
       try {
+        console.log("Fetching learning paths...");
         const learningPathIds = await contract.methods
           .getUserLearningPathIds(account)
           .call();
@@ -110,6 +111,7 @@ export default function Home() {
 
         {learningPaths.map((path) => (
           <LearningPath
+            key={path.id}
             // web3={web3}
             // contract={contract}
             id={path.id}

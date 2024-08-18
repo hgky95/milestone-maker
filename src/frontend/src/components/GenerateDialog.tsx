@@ -16,6 +16,7 @@ export default function GenerateDialog({
   onClose: () => void;
 }) {
   const handleAccept = async () => {
+    console.log("Storing data to IPFS and Smart Contract...");
     const axios = require("axios");
     let data = JSON.stringify({
       user_id: account,
