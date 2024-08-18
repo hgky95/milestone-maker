@@ -6,7 +6,7 @@ interface LearningPathProps {
   id: number;
   status: string;
   ipfsHash: string;
-  milestones: string[];
+  milestones: boolean[];
   completed: boolean;
   achievementMinted: boolean;
   account: any;
@@ -29,21 +29,37 @@ const LearningPath: React.FC<LearningPathProps> = ({
   const [showQuestionnaire, setShowQuestionnaire] = useState(false);
   const generated_session_id = uuidv4();
 
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizPassed, setQuizPassed] = useState(false);
+
   useEffect(() => {
     if (isExpanded && !pathData) {
       fetchIPFSData();
     }
   }, [isExpanded, ipfsHash]);
 
+  useEffect(() => {
+    if (pathData && pathData.quizzes) {
+      setQuizzes(pathData.quizzes);
+    }
+  }, [pathData]);
+
   const fetchIPFSData = async () => {
+    console.log("ID: ", id);
+    console.log("status: ", status);
+    console.log("ipfs: ", ipfsHash);
+    console.log("milestones: ", milestones);
+    console.log("completed: ", completed);
+    console.log("achievementMinted: ", achievementMinted);
     try {
       const response = await axios.get(
         `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
       );
       setPathData(response.data);
-      setCompletedTasks(
-        new Array(response.data.learning_path.length).fill(false)
-      );
+      setCompletedTasks(milestones);
     } catch (error) {
       console.error("Error fetching IPFS data:", error);
     }
@@ -98,6 +114,75 @@ const LearningPath: React.FC<LearningPathProps> = ({
     }
   };
 
+  const handleQuizAnswer = (answer: string) => {
+    const newUserAnswers = [...userAnswers, answer];
+    setUserAnswers(newUserAnswers);
+
+    if (currentQuizIndex < quizzes.length - 1) {
+      setCurrentQuizIndex(currentQuizIndex + 1);
+    } else {
+      // Quiz completed
+      setQuizCompleted(true);
+      const correctAnswers = newUserAnswers.filter(
+        (userAnswer, index) =>
+          userAnswer === quizzes[index][`Quiz_${index + 1}`].answer
+      ).length;
+      setQuizPassed(correctAnswers >= 4);
+    }
+  };
+
+  const renderQuiz = () => {
+    if (!quizzes.length || quizCompleted) return null;
+
+    const currentQuiz =
+      quizzes[currentQuizIndex][`Quiz_${currentQuizIndex + 1}`];
+    return (
+      <div className="mt-4 p-4 bg-gray-100 rounded">
+        <h3 className="text-xl font-semibold mb-2">
+          Quiz {currentQuizIndex + 1}
+        </h3>
+        <p className="mb-2">{currentQuiz.question}</p>
+        {currentQuiz.options.map((option: string, index: number) => (
+          <button
+            key={index}
+            onClick={() => handleQuizAnswer(option[0])}
+            className="block w-full text-left p-2 mb-2 bg-white rounded hover:bg-red-100"
+          >
+            {option}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  const renderQuizResults = () => {
+    if (!quizCompleted) return null;
+
+    return (
+      <div className="mt-4 p-4 bg-gray-100 rounded">
+        <h3 className="text-xl font-semibold mb-2">Quiz Results</h3>
+        <p>
+          {quizPassed
+            ? "Congratulations! You passed the quiz."
+            : "Sorry, you didn't pass the quiz. Please try again."}
+        </p>
+        {quizPassed && !achievementMinted && (
+          <button
+            onClick={handleMintNFT}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Mint Achievement NFT
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const handleMintNFT = async () => {
+    // Implement NFT minting logic here
+    console.log("Minting NFT...");
+  };
+
   return (
     <div className="mb-4 border rounded-lg p-4">
       <div
@@ -120,6 +205,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
                     <input
                       type="checkbox"
                       checked={completedTasks[index]}
+                      disabled={completedTasks[index] == true}
                       onChange={() => handleCheckboxChange(index)}
                       className="mr-2"
                     />
@@ -165,8 +251,8 @@ const LearningPath: React.FC<LearningPathProps> = ({
           {showQuestionnaire && (
             <div className="mt-4">
               <h3 className="text-xl font-semibold mb-2">Questionnaire</h3>
-              {/* Display questionnaire from IPFS data */}
-              {/* You'll need to implement this based on your data structure */}
+              {renderQuiz()}
+              {renderQuizResults()}
             </div>
           )}
         </div>
