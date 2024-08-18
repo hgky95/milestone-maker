@@ -131,6 +131,13 @@ const LearningPath: React.FC<LearningPathProps> = ({
     }
   };
 
+  const resetQuiz = () => {
+    setCurrentQuizIndex(0);
+    setUserAnswers([]);
+    setQuizCompleted(false);
+    setQuizPassed(false);
+  };
+
   const renderQuiz = () => {
     if (!quizzes.length || quizCompleted) return null;
 
@@ -162,9 +169,19 @@ const LearningPath: React.FC<LearningPathProps> = ({
       <div className="mt-4 p-4 bg-gray-100 rounded">
         <h3 className="text-xl font-semibold mb-2">Quiz Results</h3>
         <p>
-          {quizPassed
-            ? "Congratulations! You passed the quiz."
-            : "Sorry, you didn't pass the quiz. Please try again."}
+          <p>
+            {quizPassed
+              ? "Congratulations! You passed the quiz."
+              : "Sorry, you didn't pass the quiz. You can try again."}
+          </p>
+          {!quizPassed && (
+            <button
+              onClick={resetQuiz}
+              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              Retry Quiz
+            </button>
+          )}
         </p>
         {quizPassed && !achievementMinted && (
           <button
