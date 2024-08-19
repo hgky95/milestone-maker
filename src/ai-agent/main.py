@@ -3,9 +3,10 @@ import json
 from web3 import Web3
 from hive_agent import HiveAgent
 from dotenv import load_dotenv
-from ipfs_handler import pin_json_to_ipfs
+from ipfs_handler import pin_json_to_ipfs, pin_file_to_ipfs
 from smart_contract_handler import create_learning_path_on_smart_contract, update_milestone, set_quiz_passed
 from log_utils import log_info, log_error
+from certificate_handler import create_certificate
 
 # Load environment variables
 load_dotenv()
@@ -25,6 +26,24 @@ with open('SmartContractABI.json', 'r') as abi_file:
 
 def get_config_path(filename):
     return os.path.abspath(os.path.join(os.path.dirname(__file__), filename))
+
+
+def generate_certificate(title, name):
+    """
+    Generate certificate and then upload to IPFS
+
+    Parameter:
+    title (str): the title of the certificate
+    name (str): the name of user
+    :return: the cid
+    """
+    log_info("Generating certificate...")
+    base64_certificate = create_certificate(title, name)
+    image_cid = pin_file_to_ipfs(base64_certificate)
+    data = {'title': 'Python Basic', 'image': image_cid}
+    json_obj = json.loads(json.dumps(data))
+    metadata_cid = pin_json_to_ipfs(json_obj)
+    return metadata_cid
 
 
 def set_quizzes_passed(user_address, learning_path_id):
@@ -145,6 +164,10 @@ json_data = {
     "milestones": 2
 }
 
+cid_return_format = {
+    "cid": "QmfD5H17FWkxadhRFYAzAe6ifyR2XaR8rsM9SHh9UzvFPL"
+}
+
 instruction = f""" 
     You are a Personalized Learning Generator Assistant! 
     Your role is handling some below tasks:
@@ -158,10 +181,12 @@ instruction = f"""
     2. Store the learning path to IPFS and smart contract.
     3. Update the milestones based on user address, learning path id and milestones value.
     4. Set the quizzes passed based on user address, learning path id.
+    5. Generate the certificate based on the title and name, important: Do not include the prefix and suffix in the answer,
+        you only need to provide the answer follow the format as {cid_return_format}
     """
 path_learning_generator_agent = HiveAgent(
     name="path_learning_generator_agent",
-    functions=[store_learning_path, update_milestones, set_quizzes_passed],
+    functions=[store_learning_path, update_milestones, set_quizzes_passed, generate_certificate],
     instruction=instruction,
     config_path=get_config_path("hive_config.toml"),
 )
