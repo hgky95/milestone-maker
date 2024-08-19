@@ -112,8 +112,6 @@ export default function Home() {
         {learningPaths.map((path) => (
           <LearningPath
             key={path.id}
-            // web3={web3}
-            // contract={contract}
             id={path.id}
             status={path.status}
             ipfsHash={path.ipfsHash}
@@ -121,6 +119,8 @@ export default function Home() {
             completed={path.completed}
             achievementMinted={path.achievementMinted}
             account={account}
+            web3={web3}
+            contract={contract}
           />
         ))}
       </main>

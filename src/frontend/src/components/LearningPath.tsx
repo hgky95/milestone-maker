@@ -10,9 +10,12 @@ interface LearningPathProps {
   completed: boolean;
   achievementMinted: boolean;
   account: any;
+  web: any;
+  contract: any;
 }
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API || "";
+const IPFS_GATEWAY = process.env.NEXT_PUBLIC_IPFS_GATEWAY || "";
 
 const LearningPath: React.FC<LearningPathProps> = ({
   id,
@@ -22,6 +25,8 @@ const LearningPath: React.FC<LearningPathProps> = ({
   completed,
   achievementMinted,
   account,
+  web,
+  contract,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [pathData, setPathData] = useState<any>(null);
@@ -54,9 +59,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
     console.log("completed: ", completed);
     console.log("achievementMinted: ", achievementMinted);
     try {
-      const response = await axios.get(
-        `https://gateway.pinata.cloud/ipfs/${ipfsHash}`
-      );
+      const response = await axios.get(IPFS_GATEWAY + `${ipfsHash}`);
       setPathData(response.data);
       setCompletedTasks(milestones);
     } catch (error) {
@@ -233,7 +236,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
               className="w-full mb-4 p-2 border border-gray-300 rounded"
             />
             <button
-              onClick={handleMintNFT}
+              onClick={() => handleMintNFT(pathData.title, userName)}
               disabled={!userName}
               className={`${
                 !userName
@@ -249,9 +252,60 @@ const LearningPath: React.FC<LearningPathProps> = ({
     );
   };
 
-  const handleMintNFT = async () => {
-    // Implement NFT minting logic here
+  const handleMintNFT = async (title: string, userName: string) => {
     console.log("Minting NFT...");
+    let data = JSON.stringify({
+      user_id: account,
+      session_id: generated_session_id,
+      chat_data: {
+        messages: [
+          {
+            role: "user",
+            content:
+              "Generate the certificate with title: " +
+              title +
+              " , name : " +
+              userName,
+          },
+        ],
+      },
+    });
+
+    const config = {
+      method: "post",
+      url: BACKEND_API,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    try {
+      const response = await axios.request(config);
+      console.log(JSON.stringify(response.data));
+      // const cid = response.data.cid; TODO
+      const cid = "QmZm124E5b6vFGVgeyKoyfNUhUypmXwhYK6NqVaPUea3E6";
+      const tokenURI = IPFS_GATEWAY + `${cid}`;
+      try {
+        const gasEstimate = await contract.methods
+          .mintAchievement(account, id, tokenURI)
+          .estimateGas({ from: account });
+        const result = await contract.methods
+          .mintAchievement(account, id, tokenURI)
+          .send({
+            from: account,
+            gas: gasEstimate,
+          });
+        console.log("Transaction hash:", result.transactionHash);
+        alert("NFT is minted successfully!");
+      } catch (error) {
+        console.error("Error minting NFT:", error);
+        alert("Failed to mint NFT. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error generating certificate: ", error);
+      alert("Failed to generate certificate. Please try again.");
+    }
   };
 
   return (
