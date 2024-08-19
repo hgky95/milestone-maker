@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import Notification from "./Notification";
 
 interface LearningPathProps {
   id: number;
@@ -28,6 +29,10 @@ const LearningPath: React.FC<LearningPathProps> = ({
   web,
   contract,
 }) => {
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [pathData, setPathData] = useState<any>(null);
   const [completedTasks, setCompletedTasks] = useState<boolean[]>([]);
@@ -297,19 +302,39 @@ const LearningPath: React.FC<LearningPathProps> = ({
             gas: gasEstimate,
           });
         console.log("Transaction hash:", result.transactionHash);
-        alert("NFT is minted successfully!");
+        setNotification({
+          message: "NFT is minted successfully!",
+          type: "success",
+        });
       } catch (error) {
         console.error("Error minting NFT:", error);
-        alert("Failed to mint NFT. Please try again.");
+        setNotification({
+          message: "Failed to mint NFT. Please try again.",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error generating certificate: ", error);
-      alert("Failed to generate certificate. Please try again.");
+      setNotification({
+        message: "Failed to generate certificate. Please try again.",
+        type: "error",
+      });
     }
+  };
+
+  const closeNotification = () => {
+    setNotification(null);
   };
 
   return (
     <div className="mb-4 border rounded-lg p-4">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={closeNotification}
+        />
+      )}
       <div
         className="cursor-pointer flex justify-between items-center"
         onClick={toggleExpand}
