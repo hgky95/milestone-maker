@@ -34,6 +34,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [quizPassed, setQuizPassed] = useState(false);
+  const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
     fetchIPFSData();
@@ -125,7 +126,6 @@ const LearningPath: React.FC<LearningPathProps> = ({
   };
 
   const handleQuizPassed = async (newUserAnswers: any) => {
-    setQuizCompleted(true);
     const correctAnswers = newUserAnswers.filter(
       (userAnswer: any, index: number) =>
         userAnswer === quizzes[index][`Quiz_${index + 1}`].answer
@@ -160,11 +160,14 @@ const LearningPath: React.FC<LearningPathProps> = ({
 
         const response = await axios.request(config);
         console.log(JSON.stringify(response.data));
-
+        setQuizCompleted(true);
         setQuizPassed(true);
       } catch (error) {
         console.log("Error set quiz passed:", error);
       }
+    } else {
+      setQuizCompleted(true);
+      setQuizPassed(false);
     }
   };
 
@@ -208,7 +211,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
         <p>
           <p>
             {quizPassed
-              ? "Congratulations! You passed the quiz."
+              ? "Congratulations! You passed the quiz. Please enter your name and then mint the achievement NFT."
               : "Sorry, you didn't pass the quiz. You can try again."}
           </p>
           {!quizPassed && (
@@ -221,12 +224,26 @@ const LearningPath: React.FC<LearningPathProps> = ({
           )}
         </p>
         {quizPassed && !achievementMinted && (
-          <button
-            onClick={handleMintNFT}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Mint Achievement NFT
-          </button>
+          <div className="mt-4">
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full mb-4 p-2 border border-gray-300 rounded"
+            />
+            <button
+              onClick={handleMintNFT}
+              disabled={!userName}
+              className={`${
+                !userName
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white px-4 py-2 rounded hover:bg-blue-600`}
+            >
+              Mint Achievement NFT
+            </button>
+          </div>
         )}
       </div>
     );
