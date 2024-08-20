@@ -88,6 +88,20 @@ export default function Home() {
     }
   };
 
+  const handleLearningPathUpdate = (
+    id: number,
+    newMilestones: boolean[],
+    newCompleted: boolean
+  ) => {
+    setLearningPaths((prevPaths) =>
+      prevPaths.map((path) =>
+        path.id === id
+          ? { ...path, milestones: newMilestones, completed: newCompleted }
+          : path
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="container mx-auto px-4 py-8">
@@ -119,8 +133,9 @@ export default function Home() {
             completed={path.completed}
             achievementMinted={path.achievementMinted}
             account={account}
-            web3={web3}
+            // web3={web3}
             contract={contract}
+            onLearningPathUpdate={handleLearningPathUpdate}
           />
         ))}
       </main>

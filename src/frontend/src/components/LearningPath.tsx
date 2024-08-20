@@ -11,8 +11,13 @@ interface LearningPathProps {
   completed: boolean;
   achievementMinted: boolean;
   account: any;
-  web: any;
+  // web3: any;
   contract: any;
+  onLearningPathUpdate: (
+    id: number,
+    newMilestones: boolean[],
+    newCompleted: boolean
+  ) => void;
 }
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API || "";
@@ -26,8 +31,9 @@ const LearningPath: React.FC<LearningPathProps> = ({
   completed,
   achievementMinted,
   account,
-  web,
+  // web3,
   contract,
+  onLearningPathUpdate,
 }) => {
   const [notification, setNotification] = useState<{
     message: string;
@@ -56,6 +62,10 @@ const LearningPath: React.FC<LearningPathProps> = ({
     }
   }, [pathData]);
 
+  useEffect(() => {
+    setCompletedTasks([...milestones]);
+  }, [milestones]);
+
   const fetchIPFSData = async () => {
     console.log("ID: ", id);
     console.log("status: ", status);
@@ -81,7 +91,8 @@ const LearningPath: React.FC<LearningPathProps> = ({
     newCompletedTasks[index] = !newCompletedTasks[index];
     setCompletedTasks(newCompletedTasks);
 
-    if (newCompletedTasks.every((task) => task)) {
+    const newCompleted = newCompletedTasks.every((task) => task);
+    if (newCompleted) {
       setShowQuestionnaire(true);
     }
 
@@ -99,7 +110,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
                 " , learning path id is: " +
                 id +
                 " , milestones value is: " +
-                completedTasks,
+                newCompletedTasks,
             },
           ],
         },
@@ -116,6 +127,8 @@ const LearningPath: React.FC<LearningPathProps> = ({
 
       const response = await axios.request(config);
       console.log(JSON.stringify(response.data));
+
+      onLearningPathUpdate(id, newCompletedTasks, newCompleted);
     } catch (error) {
       console.error("Error updating milestones:", error);
     }
@@ -342,7 +355,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
         {pathData && pathData.title && (
           <span className="font-medium">Title: {pathData.title}</span>
         )}
-        <span>Status: {status}</span>
+        <span>Status: {completed ? "Completed" : "In Progress"}</span>
         <span>{isExpanded ? "▲" : "▼"}</span>
       </div>
       {isExpanded && pathData && (
