@@ -301,8 +301,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
     try {
       const response = await axios.request(config);
       console.log(JSON.stringify(response.data));
-      // const cid = response.data.cid; TODO
-      const cid = "QmZm124E5b6vFGVgeyKoyfNUhUypmXwhYK6NqVaPUea3E6";
+      const cid = response.data.cid;
       const tokenURI = IPFS_GATEWAY + `${cid}`;
       try {
         const gasEstimate = await contract.methods
@@ -360,7 +359,6 @@ const LearningPath: React.FC<LearningPathProps> = ({
       </div>
       {isExpanded && pathData && (
         <div className="mt-4">
-          <p>IPFS Hash: {ipfsHash}</p>
           <div className="bg-gray-100 p-4 rounded mb-4 max-h-96 overflow-y-auto">
             {pathData.learning_path.map((task: any, index: number) => {
               const taskKey = Object.keys(task)[0];

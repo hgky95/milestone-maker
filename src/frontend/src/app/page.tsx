@@ -6,6 +6,8 @@ import MilestoneMaker from "../components/MilestoneMaker";
 import ConnectWallet from "../components/ConnectWallet";
 import LearningPath from "../components/LearningPath";
 import SmartContractABI from "../utils/SmartContractABI.json";
+import Sidebar from "../components/Sidebar";
+import Achievements from "../components/Achievements";
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const WEB3_HTTP_PROVIDER = process.env.NEXT_PUBLIC_WEB3_HTTP_PROVIDER || "";
@@ -15,6 +17,7 @@ export default function Home() {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [contract, setContract] = useState<any>(null);
   const [learningPaths, setLearningPaths] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<string>("home");
 
   useEffect(() => {
     const initializeWeb3 = async () => {
@@ -102,43 +105,55 @@ export default function Home() {
     );
   };
 
+  const handlePageChange = (page: string) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-2xl font-bold">
-            <img
-              src="/milestone_maker_logo.png"
-              alt="Milestone maker logo"
-              className="inline-block w-20 h-20 mr-4"
-            />
+    <div className="min-h-screen bg-gray-100 flex">
+      <Sidebar onPageChange={handlePageChange} />
+      <div className="flex-1 ml-16">
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex justify-between items-center mb-8">
+            <div className="text-2xl font-bold">
+              <img
+                src="/milestone_maker_logo.png"
+                alt="Milestone maker logo"
+                className="inline-block w-20 h-20 mr-4"
+              />
+            </div>
+            <ConnectWallet setAccount={setAccount} web3={web3} />
           </div>
-          <ConnectWallet setAccount={setAccount} web3={web3} />
-        </div>
 
-        <h1 className="text-4xl font-bold mb-8">Milestone Maker</h1>
+          {currentPage === "home" ? (
+            <>
+              <h1 className="text-4xl font-bold mb-8">Milestone Maker</h1>
 
-        <MilestoneMaker
-          account={account}
-          fetchLearningPath={fetchLearningPath}
-        />
+              <MilestoneMaker
+                account={account}
+                fetchLearningPath={fetchLearningPath}
+              />
 
-        {learningPaths.map((path) => (
-          <LearningPath
-            key={path.id}
-            id={path.id}
-            status={path.status}
-            ipfsHash={path.ipfsHash}
-            milestones={path.milestones}
-            completed={path.completed}
-            achievementMinted={path.achievementMinted}
-            account={account}
-            // web3={web3}
-            contract={contract}
-            onLearningPathUpdate={handleLearningPathUpdate}
-          />
-        ))}
-      </main>
+              {learningPaths.map((path) => (
+                <LearningPath
+                  key={path.id}
+                  id={path.id}
+                  status={path.status}
+                  ipfsHash={path.ipfsHash}
+                  milestones={path.milestones}
+                  completed={path.completed}
+                  achievementMinted={path.achievementMinted}
+                  account={account}
+                  contract={contract}
+                  onLearningPathUpdate={handleLearningPathUpdate}
+                />
+              ))}
+            </>
+          ) : (
+            <Achievements account={account} web3={web3} contract={contract} />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
