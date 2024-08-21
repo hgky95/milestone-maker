@@ -313,12 +313,10 @@ const LearningPath: React.FC<LearningPathProps> = ({
         });
 
         const web3 = new Web3(window.ethereum);
-        // web3.setProvider(WEB3_HTTP_PROVIDER);
         const contract = new web3.eth.Contract(
           SmartContractABI,
           CONTRACT_ADDRESS
         );
-        // contract.setProvider(WEB3_HTTP_PROVIDER);
 
         const accountMintNFT = accounts[0];
         console.log("accountMintNFT: ", accountMintNFT);
