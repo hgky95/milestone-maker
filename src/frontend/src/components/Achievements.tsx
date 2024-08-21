@@ -35,8 +35,12 @@ const Achievements: React.FC<AchievementsProps> = ({
           .call();
         const tokenURI = await contract.methods.tokenURI(tokenId).call();
         console.log("Token URI:", tokenURI);
-        const metadata = await fetch(tokenURI).then((res) => res.json());
-        fetchedNFTs.push({ tokenId, ...metadata });
+        try {
+          const metadata = await fetch(tokenURI).then((res) => res.json());
+          fetchedNFTs.push({ tokenId, ...metadata });
+        } catch (error) {
+          console.log("Error when fetching NFTs: ", error);
+        }
       }
 
       setNfts(fetchedNFTs);

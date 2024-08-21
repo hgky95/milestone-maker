@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import Notification from "./Notification";
+import Web3 from "web3";
+import SmartContractABI from "../utils/SmartContractABI.json";
 
 interface LearningPathProps {
   id: number;
@@ -12,7 +14,7 @@ interface LearningPathProps {
   achievementMinted: boolean;
   account: any;
   // web3: any;
-  contract: any;
+  // contract: any;
   onLearningPathUpdate: (
     id: number,
     newMilestones: boolean[],
@@ -22,6 +24,8 @@ interface LearningPathProps {
 
 const BACKEND_API = process.env.NEXT_PUBLIC_BACKEND_API || "";
 const IPFS_GATEWAY = process.env.NEXT_PUBLIC_IPFS_GATEWAY || "";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+const WEB3_HTTP_PROVIDER = process.env.NEXT_PUBLIC_WEB3_HTTP_PROVIDER || "";
 
 const LearningPath: React.FC<LearningPathProps> = ({
   id,
@@ -31,7 +35,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
   completed,
   achievementMinted,
   account,
-  // web3,
+  web3,
   contract,
   onLearningPathUpdate,
 }) => {
@@ -151,7 +155,7 @@ const LearningPath: React.FC<LearningPathProps> = ({
       (userAnswer: any, index: number) =>
         userAnswer === quizzes[index][`Quiz_${index + 1}`].answer
     ).length;
-    if (correctAnswers >= 4) {
+    if (correctAnswers >= (newUserAnswers.length * 80) / 100) {
       try {
         let data = JSON.stringify({
           user_id: account,
@@ -300,18 +304,40 @@ const LearningPath: React.FC<LearningPathProps> = ({
 
     try {
       const response = await axios.request(config);
-      console.log(JSON.stringify(response.data));
       const cid = response.data.cid;
-      const tokenURI = IPFS_GATEWAY + `${cid}`;
+      console.log("CID: ", cid);
+      const tokenURI = IPFS_GATEWAY + cid;
       try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+
+        const web3 = new Web3(window.ethereum);
+        // web3.setProvider(WEB3_HTTP_PROVIDER);
+        const contract = new web3.eth.Contract(
+          SmartContractABI,
+          CONTRACT_ADDRESS
+        );
+        // contract.setProvider(WEB3_HTTP_PROVIDER);
+
+        const accountMintNFT = accounts[0];
+        console.log("accountMintNFT: ", accountMintNFT);
+
+        const nonce = await web3.eth.getTransactionCount(accountMintNFT);
+        console.log("Nonce: ", nonce);
+
         const gasEstimate = await contract.methods
-          .mintAchievement(account, id, tokenURI)
-          .estimateGas({ from: account });
+          .mintAchievement(accountMintNFT, id, tokenURI)
+          .estimateGas({ from: accountMintNFT });
+
         const result = await contract.methods
-          .mintAchievement(account, id, tokenURI)
+          .mintAchievement(accountMintNFT, id, tokenURI)
           .send({
-            from: account,
+            from: accountMintNFT,
             gas: gasEstimate,
+            maxFeePerGas: web3.utils.toWei("100", "gwei"),
+            maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"),
+            nonce: nonce,
           });
         console.log("Transaction hash:", result.transactionHash);
         setNotification({

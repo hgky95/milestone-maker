@@ -40,7 +40,7 @@ def generate_certificate(title, name):
     log_info("Generating certificate...")
     base64_certificate = create_certificate(title, name)
     image_cid = pin_file_to_ipfs(base64_certificate)
-    data = {'title': 'Python Basic', 'image': image_cid}
+    data = {'title': title, 'image': image_cid}
     json_obj = json.loads(json.dumps(data))
     metadata_cid = pin_json_to_ipfs(json_obj)
     return metadata_cid
@@ -176,13 +176,16 @@ instruction = f"""
         recommended resources (article urls, documentation urls or video urls), and a quiz including exactly five multiple choices questions 
         to assess user's understanding about their interested.
         - The milestones is the number of tasks that user need to be completed.
-        Important: Do not include the prefix and suffix in the answer, you only need to provide the answer follow the format as {json_data}
+        Important: Do not include the prefix (eg: Here's a comprehensive learning path... ) and suffix (eg: This learning path includes tasks...) in the answer,
+            you only need to provide the answer follow the format as {json_data}.
+        Please ensure that your answer is a valid JSON (eg: string should be wrapped in double quotes).
 
     2. Store the learning path to IPFS and smart contract.
     3. Update the milestones based on user address, learning path id and milestones value.
     4. Set the quizzes passed based on user address, learning path id.
     5. Generate the certificate based on the title and name, important: Do not include the prefix and suffix in the answer,
         you only need to provide the answer follow the format as {cid_return_format}
+        Please ensure that your answer is a valid JSON (eg: string should be wrapped in double quotes).
     """
 path_learning_generator_agent = HiveAgent(
     name="path_learning_generator_agent",

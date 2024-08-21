@@ -23,10 +23,7 @@ export default function Home() {
     const initializeWeb3 = async () => {
       if (typeof window.ethereum !== "undefined") {
         try {
-          const web3HttpProvider = new Web3.providers.HttpProvider(
-            WEB3_HTTP_PROVIDER
-          );
-          const web3Instance = new Web3(web3HttpProvider);
+          const web3Instance = new Web3(window.ethereum);
           setWeb3(web3Instance);
 
           console.log("Contract address: ", CONTRACT_ADDRESS);
@@ -37,6 +34,8 @@ export default function Home() {
             SmartContractABI as any,
             CONTRACT_ADDRESS
           );
+
+          contractInstance.setProvider(WEB3_HTTP_PROVIDER);
           setContract(contractInstance);
         } catch (error) {
           console.error("Error initializing web3:", error);
@@ -144,6 +143,7 @@ export default function Home() {
                   completed={path.completed}
                   achievementMinted={path.achievementMinted}
                   account={account}
+                  web3={web3}
                   contract={contract}
                   onLearningPathUpdate={handleLearningPathUpdate}
                 />
