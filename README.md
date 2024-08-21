@@ -18,6 +18,8 @@ The integration of the Hive-Agent Kit allows our AI to understand complex learni
 - AI Integration: Hive-Agent Kit
 - NFT Metadata Storage: IPFS
 - Development Environment: Foundry
+## High Level Architecture
+![MilestoneMaker-High Level Architecture](https://github.com/user-attachments/assets/fa407d31-65bb-42f8-83ca-7f2076a7f656)
 
 ## Setup
 ### Prerequisite
