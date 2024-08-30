@@ -89,5 +89,16 @@ Now, you can access the application on `http://localhost:3000`
 - Gamification Elements: Introduce more game-like elements such as rewards, leaderboards, and challenges to increase engagement and motivation.
 
 ## Demonstration
+Firstly, the user connects to the application with their wallet (e.g., MetaMask). They can then type any topics they want to learn, such as 'I want to learn basic HTML' or 'I want to learn advanced Python in ten days,' etc. Based on this prompt, the AI Agent generates a learning path suitable for the user's requirements. The content is stored on IPFS, and the CID (hash value from IPFS) is stored on the blockchain by AI Agent.
 
+![connect and accept](https://github.com/user-attachments/assets/8ed5aef8-f48f-46e3-813e-85bfd5acce60)
 
+Now, users can learn from the AI-generated content. This content provides the tasks they need to complete and includes references that users can access at any time. When users check the checkbox, their progress is updated on the blockchain by AI Agent. Once all tasks are completed, they need to pass a short quiz to verify their understanding.
+
+![complete task and question](https://github.com/user-attachments/assets/5fb47df8-2c0b-41ff-a28f-71c4e847cf8e)
+
+If users correctly answer 80% of the quizzes, they will pass it and be able to mint an NFT as an achievement. Once the NFT is successfully minted, they can view it in the achievement tab.
+
+![mint nft](https://github.com/user-attachments/assets/8833741b-72ed-4af6-956b-2635f3839a2a)
+
+It's done. Happy Coding!!!
