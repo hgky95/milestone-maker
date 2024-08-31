@@ -27,7 +27,7 @@ The integration of the Hive-Agent Kit allows our AI to understand complex learni
 ## Setup
 ### Prerequisite
 - Python >= 3.11
-- NodeJs = 10.7.0
+- NodeJs = 20.15.1
 - Foundry [Installation Guide](https://book.getfoundry.sh/getting-started/installation) 
 ### Installation
 In terminal, clone the repository: `git clone git@github.com:hgky95/milestone-maker.git`
