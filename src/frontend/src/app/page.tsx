@@ -143,8 +143,6 @@ export default function Home() {
                   completed={path.completed}
                   achievementMinted={path.achievementMinted}
                   account={account}
-                  web3={web3}
-                  contract={contract}
                   onLearningPathUpdate={handleLearningPathUpdate}
                 />
               ))}
