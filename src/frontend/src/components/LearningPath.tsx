@@ -35,8 +35,6 @@ const LearningPath: React.FC<LearningPathProps> = ({
   completed,
   achievementMinted,
   account,
-  web3,
-  contract,
   onLearningPathUpdate,
 }) => {
   const [notification, setNotification] = useState<{
@@ -335,7 +333,6 @@ const LearningPath: React.FC<LearningPathProps> = ({
             gas: gasEstimate,
             maxFeePerGas: web3.utils.toWei("100", "gwei"),
             maxPriorityFeePerGas: web3.utils.toWei("2", "gwei"),
-            nonce: nonce,
           });
         console.log("Transaction hash:", result.transactionHash);
         setNotification({

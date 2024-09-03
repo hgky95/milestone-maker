@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_CONTRACT_ADDRESS=${NEXT_PUBLIC_CONTRACT_ADDRESS}
+      - NEXT_PUBLIC_BACKEND_API=http://backend:8000/api/v1/chat
+      - NEXT_PUBLIC_WEB3_HTTP_PROVIDER=http://blockchain:8545/
+      - NEXT_PUBLIC_IPFS_GATEWAY=${NEXT_PUBLIC_IPFS_GATEWAY}
+    depends_on:
+      - backend
+      - blockchain
+
+  backend:
+    build:
+      context: ./src/ai-agent
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RPC_URL=http://blockchain:8545
+      - PRIVATE_KEY=${BACKEND_PRIVATE_KEY}
+      - MILESTONE_MAKER_ADDRESS=${MILESTONE_MAKER_ADDRESS}
+      - PINATA_API_KEY=${PINATA_API_KEY}
+      - PINATA_SECRET_API_KEY=${PINATA_SECRET_API_KEY}
+      - PINATA_JSON_HOST=${PINATA_JSON_HOST}
+      - PINATA_FILE_HOST=${PINATA_FILE_HOST}
+    depends_on:
+      - blockchain
+
+  blockchain:
+    build:
+      context: ./src/smartcontract
+      dockerfile: Dockerfile
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./src/smartcontract:/app
+    environment:
+      - BLOCKCHAIN_PRIVATE_KEY=${BLOCKCHAIN_PRIVATE_KEY}
+      - AI_AGENT_ADDRESS=${AI_AGENT_ADDRESS}
+    command: >
+      sh -c "
+        anvil --host 0.0.0.0 &
+        sleep 5 &&
+        forge script script/MileStoneMaker.s.sol --rpc-url http://localhost:8545 --broadcast --private-key ${BLOCKCHAIN_PRIVATE_KEY} |
+        tee /tmp/deployment_output.txt &&
+        CONTRACT_ADDRESS=$$(grep -oP 'Contract Address: \K[0-9a-fA-F]+' /tmp/deployment_output.txt) &&
+        cast send $${CONTRACT_ADDRESS} 'setAIAgent(address)' ${AI_AGENT_ADDRESS} --rpc-url http://localhost:8545 --private-key ${BLOCKCHAIN_PRIVATE_KEY} &&
+        tail -f /dev/null
+      "
+
+volumes:
+  blockchain_data:
