@@ -32,20 +32,63 @@ The integration of the Hive-Agent Kit allows our AI to understand complex learni
 ### Installation
 In terminal, clone the repository: `git clone git@github.com:hgky95/milestone-maker.git`
 
+There are two ways to run the app: 
+- Docker (Recommended)
+- or Run manually
+     
+### Installation - Docker
+1. Create the .env file for smartcontract:
+- The RPC_URL is the Foundry RPC localhost
+- The BLOCKCHAIN_PRIVATE_KEY is the private key of the wallet that you use to deploy the smart contract
+- The AI_AGENT_ADDRESS is the address of wallet that is defined to be an Agent
+
+```
+RPC_URL=http://127.0.0.1:8545
+BLOCKCHAIN_PRIVATE_KEY=
+AI_AGENT_ADDRESS=
+```
+2. Create the .env file for ai-agent:
+- The PRIVATE_KEY is the private key of **AI AGENT** wallet
+- The MILESTONE_MAKER_ADDRESS is the contract address from step #6 of deploy smart contract section
+- PINATA_API_KEY, PINATA_SECRET_API_KEY are used to store the data on IPFS. You can register to Pinata and get the free key.
+```
+OPENAI_API_KEY=
+RPC_URL=http://0.0.0.0:8545
+PRIVATE_KEY=
+MILESTONE_MAKER_ADDRESS=
+PINATA_API_KEY=
+PINATA_SECRET_API_KEY=
+PINATA_JSON_HOST=https://api.pinata.cloud/pinning/pinJsonToIPFS
+PINATA_FILE_HOST=https://api.pinata.cloud/pinning/pinFileToIPFS
+```
+3. Create .env for frontend:
+- The NEXT_PUBLIC_CONTRACT_ADDRESS is the contract address from step #6 of deploy smart contract section
+```
+NEXT_PUBLIC_CONTRACT_ADDRESS=
+NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
+```
+4. Open a terminal at the root (milestone-maker) then run:
+```
+docker-compose up
+```
+
+### Installation - Manually
 #### Run local blockchain + deploy smart contract
 1. In terminal, go to smartcontract folder: `cd milestone-maker/src/smartcontract`
 2. Run blockchain: `anvil` . At this step, it provides you 10 wallets for testing.
 3. **Open a new terminal** in the same directory.
 4. Create .env file:
 - The RPC_URL is the Foundry RPC localhost
-- The PRIVATE_KEY is the private key of the wallet that you use to deploy the smart contract
+- The BLOCKCHAIN_PRIVATE_KEY is the private key of the wallet that you use to deploy the smart contract
+- The AI_AGENT_ADDRESS is the address of wallet that is defined to be an Agent
 ```
 RPC_URL=http://127.0.0.1:8545
-PRIVATE_KEY=
+BLOCKCHAIN_PRIVATE_KEY=
+AI_AGENT_ADDRESS=
 ```
 5. Activate variable from env: `source .env`
 6. Deploy smart contract, then you will get the contract address: `forge script script/MileStoneMaker.s.sol --rpc-url $RPC_URL --broadcast --private-key $PRIVATE_KEY`
-7. Set the AI Agent address: `cast send ${contract_address_from_above_step} "setAIAgent(address)" ${AI_AGENT_ADDRESS_FROM_METAMASK} --rpc-url $RPC_URL --private-key $PRIVATE_KEY`
+7. Set the AI Agent address: `cast send ${contract_address_from_above_step} "setAIAgent(address)" ${AI_AGENT_ADDRESS} --rpc-url $RPC_URL --private-key $PRIVATE_KEY`
 
 #### AI-Agent (Backend)
 1. In terminal, go to ai-agent folder: `cd milestone-maker/src/ai-agent/`
