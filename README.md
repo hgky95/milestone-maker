@@ -132,6 +132,9 @@ Now, you can access the application on `http://localhost:3000`
 - Gamification Elements: Introduce more game-like elements such as rewards, leaderboards, and challenges to increase engagement and motivation.
 
 ## Demonstration
+You can check this clip [Youtube](https://youtu.be/9fN9yPpwvdc?si=TYBNWpS0SfVhLHrh)
+or
+
 Firstly, the user connects to the application with their wallet (e.g., MetaMask). They can then type any topics they want to learn, such as 'I want to learn basic HTML' or 'I want to learn advanced Python in ten days,' etc. Based on this prompt, the AI Agent generates a learning path suitable for the user's requirements. The content is stored on IPFS, and the CID (hash value from IPFS) is stored on the blockchain by AI Agent.
 
 ![connect and accept](https://github.com/user-attachments/assets/8ed5aef8-f48f-46e3-813e-85bfd5acce60)
