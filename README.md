@@ -22,7 +22,8 @@ The integration of the Hive-Agent Kit allows our AI to understand complex learni
 - NFT Metadata Storage: IPFS
 - Development Environment: Foundry
 ## High Level Architecture
-![MilestoneMaker-High Level Architecture](https://github.com/user-attachments/assets/fa407d31-65bb-42f8-83ca-7f2076a7f656)
+![MilestoneMaker-High Level Architecture](https://github.com/user-attachments/assets/d3b3b4f5-11b5-4fc7-b79b-8d244bec828c)
+
 
 ## Setup
 ### Prerequisite
@@ -65,6 +66,7 @@ PINATA_FILE_HOST=https://api.pinata.cloud/pinning/pinFileToIPFS
 - The NEXT_PUBLIC_CONTRACT_ADDRESS is the contract address from step #6 of deploy smart contract section
 ```
 NEXT_PUBLIC_CONTRACT_ADDRESS=
+// please use your specific gateway from Pinata for faster response
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
 ```
 4. Open a terminal at the root (milestone-maker) then run:
@@ -119,6 +121,7 @@ PINATA_FILE_HOST=https://api.pinata.cloud/pinning/pinFileToIPFS
 NEXT_PUBLIC_CONTRACT_ADDRESS=
 NEXT_PUBLIC_BACKEND_API=http://127.0.0.1:8000/api/v1/chat
 NEXT_PUBLIC_WEB3_HTTP_PROVIDER=http://0.0.0.0:8545/
+// please use your specific gateway for faster response
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
 ```
 3. Install dependencies: `npm install`
