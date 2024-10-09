@@ -66,7 +66,7 @@ PINATA_FILE_HOST=https://api.pinata.cloud/pinning/pinFileToIPFS
 - The NEXT_PUBLIC_CONTRACT_ADDRESS is the contract address from step #6 of deploy smart contract section
 ```
 NEXT_PUBLIC_CONTRACT_ADDRESS=
-// please use your specific gateway from Pinata for faster response
+// please use your specific gateway from Pinata for faster response follow https://custom-name.mypinata.cloud
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
 ```
 4. Open a terminal at the root (milestone-maker) then run:
@@ -121,7 +121,7 @@ PINATA_FILE_HOST=https://api.pinata.cloud/pinning/pinFileToIPFS
 NEXT_PUBLIC_CONTRACT_ADDRESS=
 NEXT_PUBLIC_BACKEND_API=http://127.0.0.1:8000/api/v1/chat
 NEXT_PUBLIC_WEB3_HTTP_PROVIDER=http://0.0.0.0:8545/
-// please use your specific gateway for faster response
+// please use your specific gateway for faster response follow https://custom-name.mypinata.cloud
 NEXT_PUBLIC_IPFS_GATEWAY=https://gateway.pinata.cloud/ipfs/
 ```
 3. Install dependencies: `npm install`
