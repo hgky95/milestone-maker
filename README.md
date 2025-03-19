@@ -2,9 +2,24 @@
 This project won 2nd prize in the SwarmZero bounty at the hackathon [ETHToronto 2024](https://www.ethtoronto.ca/winners)
 
 # Description
-Milestone Maker is a cutting-edge learning platform that fuses blockchain technology with artificial intelligence to deliver personalized educational experiences. By leveraging the Hive-Agent Kit from SwarmZero.AI, we've developed an AI agent that autonomously generates customized learning paths based on user input. These paths are securely stored on the blockchain, ensuring transparent and immutable tracking of a learner's progress.
+Milestone Maker is a cutting-edge learning platform that fuses blockchain technology with artificial intelligence to deliver personalized educational experiences. By leveraging the SwarmZero SDK, I've developed an AI agent that autonomously generates customized learning paths based on user input. These paths are securely stored on the blockchain, ensuring transparent and immutable tracking of a learner's progress.
 
-A key feature of Milestone Maker is the AI agent's autonomous management of all interactions with smart contracts, including the handling of learning paths and progress tracking. This automation not only streamlines the user experience but also significantly lowers the entry barrier for those new to decentralized applications. By simplifying complex blockchain processes, the AI agent makes the platform accessible and user-friendly, driving the mass adoption of Web3 technologies and opening the door to a broader audience
+A key feature of Milestone Maker is the AI agent's autonomous management of all interactions with smart contracts, including the handling of learning paths and progress tracking. This automation not only streamlines the user experience but also significantly lowers the entry barrier for those new to decentralized applications. By simplifying complex blockchain processes, the AI agent makes the platform accessible and user-friendly, driving the mass adoption of Web3 technologies and opening the door to a broader audience.
+
+## Demonstration
+Watch the demo on [Youtube](https://youtu.be/9fN9yPpwvdc?si=TYBNWpS0SfVhLHrh)
+
+Firstly, the user connects to the application with their wallet (e.g., MetaMask). They can then type any topics they want to learn, such as 'I want to learn basic HTML' or 'I want to learn advanced Python in ten days,' etc. Based on this prompt, the AI Agent generates a learning path suitable for the user's requirements. The content is stored on IPFS, and the CID (hash value from IPFS) is stored on the blockchain by AI Agent.
+
+![connect and accept](https://github.com/user-attachments/assets/8ed5aef8-f48f-46e3-813e-85bfd5acce60)
+
+Now, users can learn from the AI-generated content. This content provides the tasks they need to complete and includes references that users can access at any time. When users check the checkbox, their progress is updated on the blockchain by AI Agent. Once all tasks are completed, they need to pass a short quiz to verify their understanding.
+
+![complete task and question](https://github.com/user-attachments/assets/5fb47df8-2c0b-41ff-a28f-71c4e847cf8e)
+
+If users correctly answer 80% of the quizzes, they will pass it and be able to mint an NFT as an achievement. Once the NFT is successfully minted, they can view it in the achievement tab.
+
+![mint nft](https://github.com/user-attachments/assets/8833741b-72ed-4af6-956b-2635f3839a2a)
 
 ## Key Features
 - AI-generated learning paths tailored to individual needs and goals and conducting the interaction with smart contracts.
@@ -133,21 +148,5 @@ Now, you can access the application on `http://localhost:3000`
 - Enhanced AI Capabilities: Further development of the AI agent to provide more detailed feedback, suggest learning resources, and adapt paths based on learner performance.
 - Social Learning Features: Implement peer-to-peer interaction capabilities, allowing learners to collaborate, share achievements, and engage in group learning experiences.
 - Gamification Elements: Introduce more game-like elements such as rewards, leaderboards, and challenges to increase engagement and motivation.
-
-## Demonstration
-You can check this clip [Youtube](https://youtu.be/9fN9yPpwvdc?si=TYBNWpS0SfVhLHrh)
-or
-
-Firstly, the user connects to the application with their wallet (e.g., MetaMask). They can then type any topics they want to learn, such as 'I want to learn basic HTML' or 'I want to learn advanced Python in ten days,' etc. Based on this prompt, the AI Agent generates a learning path suitable for the user's requirements. The content is stored on IPFS, and the CID (hash value from IPFS) is stored on the blockchain by AI Agent.
-
-![connect and accept](https://github.com/user-attachments/assets/8ed5aef8-f48f-46e3-813e-85bfd5acce60)
-
-Now, users can learn from the AI-generated content. This content provides the tasks they need to complete and includes references that users can access at any time. When users check the checkbox, their progress is updated on the blockchain by AI Agent. Once all tasks are completed, they need to pass a short quiz to verify their understanding.
-
-![complete task and question](https://github.com/user-attachments/assets/5fb47df8-2c0b-41ff-a28f-71c4e847cf8e)
-
-If users correctly answer 80% of the quizzes, they will pass it and be able to mint an NFT as an achievement. Once the NFT is successfully minted, they can view it in the achievement tab.
-
-![mint nft](https://github.com/user-attachments/assets/8833741b-72ed-4af6-956b-2635f3839a2a)
 
 It's done. Happy Coding!!!
